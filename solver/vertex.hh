@@ -6,9 +6,9 @@ namespace SLAMSolver{
 class Vertex {
 public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-  Vertex(const int minimal_dimension) : minimal_dimension_(minimal_dimension){}
+  Vertex(const int minimal_dimension);
 
-  virtual ~Vertex(){};
+  virtual ~Vertex();
 
   int minimal_dimension() const{return minimal_dimension_;}
 

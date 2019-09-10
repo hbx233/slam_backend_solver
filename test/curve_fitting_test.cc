@@ -3,7 +3,8 @@
 #include "solver/problem.hh"
 #include "solver/base_vertex.hh"
 #include "solver/base_edge.hh"
-
+#include "solver/plain_solver.hh"
+#include "solver/minimizer_levenberg_marquardt.hh"
 using namespace SLAMSolver;
 using namespace std;
 
@@ -62,18 +63,18 @@ public:
 
 int main()
 {
-    double a=2.0, b=3.0, c=1.0;//Ground Truth
-    int N = 200;
-    double w_sigma= 1.;
+    double a=1.0, b=2.0, c=1.0;//Ground Truth
+    int N = 100;
+    double w_sigma= 1;
 
     std::default_random_engine generator;
     std::normal_distribution<double> noise(0.,w_sigma);
 
     // 构建 problem
-    Problem problem;
+    std::shared_ptr<Problem> problem_ptr = std::make_shared<Problem>();
     shared_ptr< CurveFittingVertex > vertex(new CurveFittingVertex());
     vertex->set_parameters(Eigen::Vector3d (0,0,0));
-    problem.add_vertex(vertex);
+    problem_ptr->add_vertex(vertex);
 
     for (int i = 0; i < N; ++i) {
         double x = i/100.;
@@ -82,12 +83,14 @@ int main()
         //Create Edge(measurement) and add it to problem 
         shared_ptr< CurveFittingEdge > edge(new CurveFittingEdge(x,y));
         edge->set_vertex<0>(vertex);
-
-        problem.add_edge(edge);
+        problem_ptr->add_edge(edge);
     }
 
     std::cout<<"\nTest CurveFitting start..."<<std::endl;
-    problem.solve(30);
+    std::shared_ptr<BaseSolver> plain_solver_ptr = std::make_shared<PlainSolver>(problem_ptr);
+    LevenbergMarguardtConfig lm_config;
+    MinimizerLevenbergMarquardt lm_minimizer(plain_solver_ptr, lm_config);
+    lm_minimizer.solve(30);
     std::cout << vertex->parameters() << std::endl;
     return 0;
 }
