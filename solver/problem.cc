@@ -2,8 +2,6 @@
 #include <fstream>
 #include <Eigen/Dense>
 #include "solver/problem.hh"
-#include "utils/tic_toc.h"
-
 namespace SLAMSolver {
 
 Problem::Problem()

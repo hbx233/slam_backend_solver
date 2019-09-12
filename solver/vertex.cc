@@ -1,6 +1,3 @@
-//
-// Created by hbx on 2019/9/9.
-//
 #include "solver/vertex.hh"
 
 namespace SLAMSolver{

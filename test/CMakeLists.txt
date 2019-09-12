@@ -1,2 +1,4 @@
 add_executable(curve_fitting curve_fitting_test.cc)
 target_link_libraries(curve_fitting SLAMSolver)
+add_executable(marginalization_test marginalization_test.cc)
+target_link_libraries(marginalization_test SLAMSolver)

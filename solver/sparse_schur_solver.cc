@@ -1,9 +1,5 @@
-//
-// Created by hbx on 2019/9/9.
-//
-
 #include "sparse_schur_solver.hh"
-
+#include <iostream>
 namespace SLAMSolver{
 SparseSchurSolver::SparseSchurSolver(std::shared_ptr<Problem> problem_ptr)
 : BaseSolver(problem_ptr)
@@ -15,85 +11,30 @@ void SparseSchurSolver::compute_vertices_index()
   //Order the problem as
   // complement block (unmarginalized) in top-left big diagonal block
   // marginalized block in bottom-right big diagonal block
-  int unmarginalized_variable_size = 0;
+  int complement_params_size = 0;
   //First allocate start index for parameters in unmarginalized vertices
   for(auto it = problem_ptr_->vertex_id_map_vertex_ptr_.begin(); it!=problem_ptr_->vertex_id_map_vertex_ptr_.end(); it++){
     if(marginalized_vertices_.find(it->first) != marginalized_vertices_.end()){
       //a vertex need to be marginalized
-      marginalized_variable_size_+=it->second->minimal_dimension();
+      marginalized_params_size_+=it->second->minimal_dimension();
     } else{
       //a vertex not in the marginalized set
-      vertex_id_map_start_index_[it->first] = unmarginalized_variable_size;
-      unmarginalized_variable_size+=it->second->minimal_dimension();
+      vertex_id_map_start_index_[it->first] = complement_params_size;
+      complement_params_size+=it->second->minimal_dimension();
     }
   }
   //Then allocate start index for parameters in vertices that need to be marginalized
-  problem_variable_size_ = marginalized_variable_size_;
+  problem_params_size_ = complement_params_size;
   for(auto it = marginalized_vertices_.begin(); it!=marginalized_vertices_.end(); it++){
     if(problem_ptr_->vertex_id_map_vertex_ptr_.find(*it) != problem_ptr_->vertex_id_map_vertex_ptr_.end()){
       //Check if the vertex want to be marginalized is in the problem
-      vertex_id_map_start_index_[*it] = problem_variable_size_;
-      problem_variable_size_ += problem_ptr_->vertex_id_map_vertex_ptr_[*it]->minimal_dimension();
+      vertex_id_map_start_index_[*it] = problem_params_size_;
+      problem_params_size_ += problem_ptr_->vertex_id_map_vertex_ptr_[*it]->minimal_dimension();
     }
   }
 }
 
-void SparseSchurSolver::build_solve_structure()
-{
-  // Make the Hessian Matrix and g vector in Optimization Normal Equation
-  //Normal Equation: J.transpose() * J * delta_x = - J.transpose() * error
-  // Initial Hessian Matrix and b vector are all zeros
-  // Accumulate value on Hessian Matrix and b vector
-  hessian_ = Eigen::MatrixXd::Zero(problem_variable_size_, problem_variable_size_);
-  g_ = Eigen::VectorXd::Zero(problem_variable_size_);
-
-  //For Every Edge in the Problem
-  for (auto &edge: problem_ptr_->edge_id_map_edge_ptr_) {
-    //Compute errors and error function's jacobians
-    edge.second->compute_errors();
-    edge.second->compute_jacobians();
-    //Row Block in Hessian
-    for (size_t i = 0; i < edge.second->num_vertices(); i++) {
-      std::shared_ptr<Vertex> v_ptr_i = edge.second->get_vertex_interface(i);
-      if (v_ptr_i->is_fixed()) {
-        continue;    // Hessian block is zero for fixed vertex
-      }
-
-      Eigen::MatrixXd& jacobian_i = edge.second->jacobians_[i];
-      int start_index_i = vertex_id_map_start_index_[v_ptr_i->id()];
-      int dim_i = v_ptr_i->minimal_dimension();
-
-      Eigen::MatrixXd JtW = jacobian_i.transpose() * edge.second->information();
-
-      //Column Block in Hessian
-      //Start from i to exploit the symmetry in Hessian Matrix
-      for (size_t j = i; j < edge.second->num_vertices(); j++) {
-        std::shared_ptr<Vertex> v_ptr_j = edge.second->get_vertex_interface(j);
-
-        if (v_ptr_j->is_fixed()){
-          continue;
-        }
-
-        Eigen::MatrixXd& jacobian_j = edge.second->jacobians_[j];
-        int start_index_j = vertex_id_map_start_index_[v_ptr_j->id()];
-        int dim_j = v_ptr_j->minimal_dimension();
-
-        Eigen::MatrixXd hessian = JtW * jacobian_j;
-
-        hessian_.block(start_index_i,start_index_j,dim_i,dim_j).noalias() += hessian;
-        //Symmetry block cross the diagonal line
-        if (j != i) {
-          hessian_.block(start_index_j,start_index_i,dim_j,dim_i).noalias() += hessian.transpose();
-        }
-      }
-
-      g_.segment(start_index_i, dim_i).noalias() -= JtW * edge.second->errors_;
-    }
-  }
-  delta_x_ = Eigen::VectorXd::Zero(problem_variable_size_);  // initial delta_x = 0_n;
-}
-
-void SparseSchurSolver::compute_marginalization_operations() {
+void SparseSchurSolver::compute_schur_complements() {
   //Loop through every Vertex want to be marginalized
   for(auto it = marginalized_vertices_.begin(); it != marginalized_vertices_.end(); it++){
     IDType vertex_id_marg = *it;
@@ -115,11 +56,12 @@ void SparseSchurSolver::compute_marginalization_operations() {
           //If vertex is not the marginalized vertex, add to marginalization complement
           if(vertex_ptr_compl->id() != vertex_id_marg){
             int start_index_compl = vertex_id_map_start_index_[vertex_ptr_compl->id()];
-            int dim_compl = vertex_ptr_compl->id();
+            int dim_compl = vertex_ptr_compl->minimal_dimension();
             shur_complement.second.emplace_back(start_index_compl, dim_compl);
           }
         }
       }
+      schur_complements_.push_back(shur_complement);
     }
   }
 }
@@ -127,27 +69,47 @@ void SparseSchurSolver::compute_marginalization_operations() {
 void SparseSchurSolver::solve_delta_x()
 {
   //New H_unmarg and g_unmarg
-  int unmarg_size = problem_variable_size_ - marginalized_variable_size_;
-  Eigen::MatrixXd hessian_unmarg = hessian_.block(0,0,unmarg_size, unmarg_size);
-  Eigen::VectorXd g_unmarg = g_.segment(0,unmarg_size);
-  Eigen::VectorXd g_marg = g_.segment(unmarg_size, marginalized_variable_size_);
+  int compl_size = problem_params_size_ - marginalized_params_size_;
+  Eigen::MatrixXd hessian_compl = hessian_.block(0,0,compl_size, compl_size);
+  Eigen::VectorXd g_compl = g_.segment(0,compl_size);
+  Eigen::VectorXd g_marg = g_.segment(compl_size, marginalized_params_size_);
+
   //First perform marginalization
-  for(auto& shur_complement_block : shur_complement_blocks_){
-    Parameters marginalized = shur_complement_block.first;
-    std::vector<Parameters> complements = shur_complement_block.second;
-    Eigen::MatrixXd hessian_marg_inv = hessian_.block(marginalized.start_index_, marginalized.start_index_,
-                                                       marginalized.minimal_dim_, marginalized.minimal_dim_).inverse();
+  for(auto& schur_complement : schur_complements_){
+    Parameters marginalized = schur_complement.first;
+    std::vector<Parameters> complements = schur_complement.second;
+    Eigen::MatrixXd hessian_marg = hessian_.block(marginalized.start_index_, marginalized.start_index_,
+                                                       marginalized.minimal_dim_, marginalized.minimal_dim_);
+    Eigen::MatrixXd hessian_marg_inv = hessian_marg.inverse();
+    //Perform marginalization to corresponding vertices
     for(int i = 0; i < complements.size(); i++){
-      Eigen::MatrixXd
+      int start_index_i = complements[i].start_index_;
+      int dim_i = complements[i].minimal_dim_;
+      Eigen::MatrixXd block_i_mult_marg_inv = hessian_.block(start_index_i, marginalized.start_index_, dim_i, marginalized.minimal_dim_) * hessian_marg_inv;
+      //Complement in gradient vector
+      g_compl.segment(start_index_i, dim_i) -= block_i_mult_marg_inv * g_.segment(marginalized.start_index_, marginalized.minimal_dim_);
+      //Complement in hessian matrix
       for(int j = i; j < complements.size(); j++){
-        Eigen::MatrixXd complement_matrix = ;
+        int start_index_j = complements[j].start_index_;
+        int dim_j = complements[j].minimal_dim_;
+        Eigen::MatrixXd complement_matrix = block_i_mult_marg_inv * hessian_.block(marginalized.start_index_, start_index_j, marginalized.minimal_dim_, dim_j);
+        hessian_compl.block(start_index_i, start_index_j, dim_i, dim_j) -= complement_matrix;
+        if(i!=j){
+          hessian_compl.block(start_index_j, start_index_i, dim_j, dim_i) -= complement_matrix.transpose();
+        }
       }
     }
   }
-  //Solve unmarginalized parameters
-  Eigen::VectorXd delta_x_unmarg = hessian_unmarg.inverse() * g_unmarg;
+  //Solve complement unmarginalized parameters
+  delta_x_.segment(0,compl_size) = hessian_compl.inverse() * g_compl;
   //Then solve for marginalized parameters
-  
+  g_marg -= hessian_.block(compl_size, 0, marginalized_params_size_, compl_size) * delta_x_.segment(0, compl_size);
+  for(auto& schur_complement : schur_complements_) {
+    Parameters marginalized = schur_complement.first;
+    Eigen::MatrixXd hessian_marg_inv = hessian_.block(marginalized.start_index_, marginalized.start_index_,
+                                                      marginalized.minimal_dim_, marginalized.minimal_dim_).inverse();
+    delta_x_.segment(marginalized.start_index_, marginalized.minimal_dim_) = hessian_marg_inv * g_marg.segment(marginalized.start_index_-compl_size, marginalized.minimal_dim_);
+  }
 }
 
 

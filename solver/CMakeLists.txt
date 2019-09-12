@@ -15,4 +15,7 @@ add_library(SLAMSolver SHARED
         plain_solver.hh
         base_solver.cc
         minimizer_levenberg_marquardt.cc
-        minimizer_levenberg_marquardt.hh sparse_schur_solver.cc sparse_schur_solver.hh vertex.cc)
+        minimizer_levenberg_marquardt.hh
+        sparse_schur_solver.cc
+        sparse_schur_solver.hh
+        vertex.cc)

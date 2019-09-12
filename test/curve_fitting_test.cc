@@ -37,7 +37,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     CurveFittingEdge( double x, double y ):x_(x),y_(y) {}
 
-    virtual void compute_errors() override
+    void compute_errors() override
     {
         //First get current estimated curve parameters
         //No need to perform casting
@@ -45,7 +45,7 @@ public:
         //Compute error_ vector using current estimated parameters
         errors_(0) = std::exp( abc(0)*x_*x_ + abc(1)*x_ + abc(2) ) - y_;
     }
-    virtual void compute_jacobians() override
+    void compute_jacobians() override
     {
         //Get current estimated curve parameters
         Eigen::Vector3d abc = get_vertex<0>()->parameters();
@@ -54,6 +54,7 @@ public:
         Eigen::Matrix<double, 1, 3> jaco_abc;
         jaco_abc << x_ * x_ * exp_y, x_ * exp_y , 1 * exp_y;
         jacobians_[0] = jaco_abc;
+        std::cout<<jaco_abc<<std::endl;
     }
 public:
     //Measurent of x and y
@@ -90,7 +91,7 @@ int main()
     std::shared_ptr<BaseSolver> plain_solver_ptr = std::make_shared<PlainSolver>(problem_ptr);
     LevenbergMarguardtConfig lm_config;
     MinimizerLevenbergMarquardt lm_minimizer(plain_solver_ptr, lm_config);
-    lm_minimizer.solve(30);
+    lm_minimizer.minimize(30);
     std::cout << vertex->parameters() << std::endl;
     return 0;
 }

@@ -7,7 +7,6 @@
 
 // double matricies
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> MatXX;
-
 typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VecX;
 // Quaternions
 typedef Eigen::Quaterniond Qd;

@@ -4,24 +4,28 @@
 #include "solver/vertex.hh"
 namespace SLAMSolver{
 
-//Vertex Class doesn't store parameters of the Vertex
-//The implementation of parameters is not exposed through Vertex
-//BaseVertex stores the Parameters with ParamType
-//Every vertex in solver need to derived from BaseVertex template class
-//Specify:
-// D: Minimal Parametrization Dimension
-// ParamType: Type of Parameters
+/*!
+ * @brief Templae base class for vertex
+ * @tparam D Dimension of Minimal Parametrization
+ * @tparam ParamType Type of parameter's internal representation
+ */
 template <int D, typename ParamType>
 class BaseVertex : public Vertex{
 public:
+  /// @brief Constructor of BaseVertex
   BaseVertex();
+  /// @brief Virtual Destructor of BaseVertex
   virtual ~BaseVertex(){};
-  
+
+  /// @return parameters
   ParamType parameters() const;
-  
+
+  /// @brief Set parameters in vertex
   void set_parameters(const ParamType& parameters);
   
 protected:
+  /// Storage of parameters in type of ParamType
+  /// This is not exposed through Vertex base class
   ParamType parameters_;
 };
 

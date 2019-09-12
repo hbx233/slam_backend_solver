@@ -52,7 +52,7 @@ double MinimizerLevenbergMarquardt::compute_gain_factor(const double cost_before
   return (cost_before_update - cost_after_update) / gn_cost;
 }
 
-bool MinimizerLevenbergMarquardt::solve(const int max_iterations) {
+bool MinimizerLevenbergMarquardt::minimize(const int max_iterations) {
   int iter = 0; //optimization iteration
   double v = 2;
   //Gauss-Newton, build Hessian Matrix and b vector in Normal Equation
