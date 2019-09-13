@@ -61,19 +61,19 @@ public:
   }
 
   /// @return Information matrix
-  MatXX information() const {
+  Eigen::MatrixXd information() const {
     return information_;
   }
 
   /// Errors vector and jacobians matrix
-  VecX errors_; // errors
-  std::vector<MatXX> jacobians_; //every vertex that the edge connected to has one jacobian matrix
+  Eigen::VectorXd errors_; // errors
+  std::vector<Eigen::MatrixXd> jacobians_; //every vertex that the edge connected to has one jacobian matrix
 protected:
     const int errors_dimension_; //Dimension of errors
     const int num_vertices_; //Number of vertices
     unsigned long id_;  // unique edge id
     std::vector<std::shared_ptr<Vertex>> vertices_interface_ptr_; //interface pointer of type Vertex
-    MatXX information_; //Information matrix
+    Eigen::MatrixXd information_; //Information matrix
 };
 
 }
