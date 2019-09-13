@@ -4,12 +4,12 @@ add_library(SLAMSolver SHARED
         base_edge.hh
         vertex.hh
         base_vertex.hh
-        #pose3d_vertex.hh
-        #pose3d_vertex.cc
+        pose3d_vertex.hh
+        pose3d_vertex.cc
         problem.hh
         problem.cc
-        #relative_pose3d_edge.cpp
-        #relative_pose3d_edge.h
+        relative_pose3d_edge.cc
+        relative_pose3d_edge.hh
         base_solver.hh
         plain_solver.cc
         plain_solver.hh
@@ -18,4 +18,7 @@ add_library(SLAMSolver SHARED
         minimizer_levenberg_marquardt.hh
         sparse_schur_solver.cc
         sparse_schur_solver.hh
-        vertex.cc)
+        vertex.cc
+        reprojection_edge.hh
+        reprojection_edge.cc
+        )

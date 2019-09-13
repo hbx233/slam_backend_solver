@@ -37,7 +37,7 @@ public:
 
   int marginalized_params_size_; // size of parameters that want to marginalize
   std::set<IDType> marginalized_vertices_; //a set contain id of vertices that want to marginalize
-  /// represent the schur complement operation
+  /// represent the schur complement matrix block operation
   /// First in pair represent the parameters that need to be marginalized out
   /// Second in pair represent a set of parameters that need to complement when marginalizing out the pair.first
   std::vector<std::pair<Parameters, std::vector<Parameters>>> schur_complements_;

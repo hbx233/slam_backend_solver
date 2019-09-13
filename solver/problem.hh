@@ -54,7 +54,7 @@ public:
 public:
     /*!
      * @brief Cost of the whole problem by summing cost from all edges
-     * @return Accumulated total cost of problem 
+     * @return Accumulated total cost of problem
      */
     double compute_cost();
 

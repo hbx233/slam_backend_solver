@@ -8,7 +8,7 @@ SparseSchurSolver::SparseSchurSolver(std::shared_ptr<Problem> problem_ptr)
 
 void SparseSchurSolver::compute_vertices_index()
 {
-  //Order the problem as
+  // Order the problem as
   // complement block (unmarginalized) in top-left big diagonal block
   // marginalized block in bottom-right big diagonal block
   int complement_params_size = 0;
@@ -32,6 +32,7 @@ void SparseSchurSolver::compute_vertices_index()
       problem_params_size_ += problem_ptr_->vertex_id_map_vertex_ptr_[*it]->minimal_dimension();
     }
   }
+  compute_schur_complements();
 }
 
 void SparseSchurSolver::compute_schur_complements() {
@@ -68,12 +69,11 @@ void SparseSchurSolver::compute_schur_complements() {
 
 void SparseSchurSolver::solve_delta_x()
 {
-  //New H_unmarg and g_unmarg
+  //
   int compl_size = problem_params_size_ - marginalized_params_size_;
   Eigen::MatrixXd hessian_compl = hessian_.block(0,0,compl_size, compl_size);
   Eigen::VectorXd g_compl = g_.segment(0,compl_size);
   Eigen::VectorXd g_marg = g_.segment(compl_size, marginalized_params_size_);
-
   //First perform marginalization
   for(auto& schur_complement : schur_complements_){
     Parameters marginalized = schur_complement.first;

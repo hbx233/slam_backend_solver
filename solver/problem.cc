@@ -18,7 +18,9 @@ bool Problem::add_vertex(std::shared_ptr<Vertex> vertex) {
     return true;
   }
 }
+bool Problem::remove_vertex(std::shared_ptr<Vertex> vertex) {
 
+}
 
 bool Problem::add_edge(std::shared_ptr<Edge> edge) {
   //Add Edge Interface pointer to hash map with its ID as key 
@@ -36,6 +38,10 @@ bool Problem::add_edge(std::shared_ptr<Edge> edge) {
     }
     return true;
   }
+}
+
+bool Problem::remove_edge(std::shared_ptr<Edge> edge) {
+
 }
 
 double Problem::compute_cost() {

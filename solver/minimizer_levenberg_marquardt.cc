@@ -74,8 +74,8 @@ bool MinimizerLevenbergMarquardt::minimize(const int max_iterations) {
       //2. Solve Linear system to compute delta_x_:
       // (Hessian + lambda * I) * delta_x = g
       solver_ptr_->solve_delta_x();
-      std::cout<<"Delta x update"<<std::endl;
-      std::cout<<solver_ptr_->delta_x_<<std::endl;
+      std::cout<<"Delta x update norm"<<std::endl;
+      std::cout<<solver_ptr_->delta_x_.norm()<<std::endl;
       if(solver_ptr_->delta_x_.norm() <= config_.min_norm_delta_x || fail_count > 10){
         //Stop Criteria: delta_x_ is too small
         found = true;
@@ -102,6 +102,8 @@ bool MinimizerLevenbergMarquardt::minimize(const int max_iterations) {
           solver_ptr_->build_solve_structure();
           //3. Update Lambda
           double factor = 1 - std::pow(2 * gain - 1, 3);
+          std::cout<<gain<<std::endl;
+          std::cout<<factor<<std::endl;
           lambda = lambda * std::max(0.333, factor);
           v = 2;
         } else {

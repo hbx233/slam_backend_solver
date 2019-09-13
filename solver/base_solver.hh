@@ -14,6 +14,7 @@ public:
    */
   BaseSolver(std::shared_ptr<Problem> problem_ptr);
 
+  virtual ~BaseSolver() = default;
   /*!
    * @brief Update all vertices' parameters using the current delta_x_
    */
