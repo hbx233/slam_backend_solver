@@ -18,6 +18,8 @@ add_library(SLAMSolver SHARED
         minimizer_levenberg_marquardt.hh
         sparse_schur_solver.cc
         sparse_schur_solver.hh
+        sparse_cholesky_solver.cc
+        sparse_cholesky_solver.hh
         vertex.cc
         reprojection_edge.hh
         reprojection_edge.cc

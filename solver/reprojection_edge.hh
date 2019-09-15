@@ -17,6 +17,7 @@ public:
   /// @brief override interface, compute reprojection error
   void compute_errors() override;
   /// @brief override interface, compute jacobian matrices for point and pose
+  /// @note Use left perturbation in Pose3DVertex, so keep use left perturbation in computing jacobian
   void compute_jacobians() override;
 private:
   /// This is the point on z_camera=1 plane, not the pixel coordinate in image

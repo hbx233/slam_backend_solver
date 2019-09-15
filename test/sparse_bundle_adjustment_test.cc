@@ -94,7 +94,7 @@ int main() {
 
   //Create pose vertices
   for(int i = 0; i < frames.size(); i++){
-    std::shared_ptr<Pose3DVertex> pose_ptr = std::make_shared<Pose3DVertex>();
+    std::shared_ptr<Pose3DVertex> pose_ptr = std::make_shared<Pose3DVertex>(false);
     if(i < 2){
       //monocular, fix the first two frames to set a scale
       //also ensure the optimizer won't drift in nullspace

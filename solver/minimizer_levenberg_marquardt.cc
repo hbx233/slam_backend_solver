@@ -4,6 +4,8 @@
 
 #include "minimizer_levenberg_marquardt.hh"
 #include <iostream>
+#include <fstream>
+
 namespace SLAMSolver{
 MinimizerLevenbergMarquardt::MinimizerLevenbergMarquardt(std::shared_ptr<BaseSolver> solver_ptr,
                                                          const LevenbergMarguardtConfig &config)
@@ -76,6 +78,7 @@ bool MinimizerLevenbergMarquardt::minimize(const int max_iterations) {
       solver_ptr_->solve_delta_x();
       std::cout<<"Delta x update norm"<<std::endl;
       std::cout<<solver_ptr_->delta_x_.norm()<<std::endl;
+      std::cout<<solver_ptr_->delta_x_<<std::endl;
       if(solver_ptr_->delta_x_.norm() <= config_.min_norm_delta_x || fail_count > 10){
         //Stop Criteria: delta_x_ is too small
         found = true;

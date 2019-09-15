@@ -19,7 +19,7 @@ struct Parameters{
  */
 class SparseSchurSolver : public BaseSolver{
 public:
-  /// @brief Constructor
+  /// @brief Constructor passes problem pointer to BaseSolver
   SparseSchurSolver(std::shared_ptr<Problem> problem_ptr);
 
   /// @brief Reorder the vertices, make all parameters of marginalized vertices to bottom-right
