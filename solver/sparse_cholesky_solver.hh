@@ -22,6 +22,7 @@ public:
   SparseCholeskySolver(std::shared_ptr<Problem> problem_ptr);
   /// @brief Default destructor
   ~SparseCholeskySolver() = default;
+  /// @brief
   void compute_vertices_index() override;
   void solve_delta_x() override;
   void build_solve_structure() override;

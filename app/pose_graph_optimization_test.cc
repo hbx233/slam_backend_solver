@@ -22,7 +22,8 @@ struct RelativePoseObservation{
   Sophus::SE3 pose0_SE3_pose1;
 };
 
-Sophus::SE3 generate_SE3_noise(std::default_random_engine& generator){
+Sophus::SE3 generate_SE3_noise(){
+  std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
   std::normal_distribution<double> noise_rotation_pdf(0., 1. / 100);
   std::normal_distribution<double> noise_x_pdf(0., 1/2);
   std::normal_distribution<double> noise_y_pdf(0., 1/2);
@@ -40,14 +41,13 @@ Sophus::SE3 generate_SE3_noise(std::default_random_engine& generator){
 
 //Generate single pose chain with loop closure
 void get_simulation_data(std::vector<Sophus::SE3>& ground_truth, std::vector<RelativePoseObservation>& relative_pose_obs){
-  int pose_nums = 50;
+  int pose_nums = 100;
 
-  double radius = 12;
+  double radius = 15;
 
   ground_truth.clear();
   relative_pose_obs.clear();
 
-  std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
 
   for (int n = 0; n <= pose_nums; ++n) {
     double theta = n * 2 * M_PI / pose_nums;
@@ -59,7 +59,7 @@ void get_simulation_data(std::vector<Sophus::SE3>& ground_truth, std::vector<Rel
   for (int n = 0; n < ground_truth.size(); n++){
     if(n >=1 ){
       Sophus::SE3 relative_pose = ground_truth[n-1].inverse() * ground_truth[n];
-      Sophus::SE3 noise_SE3 = generate_SE3_noise(generator);
+      Sophus::SE3 noise_SE3 = generate_SE3_noise();
       RelativePoseObservation obs(n-1, n, noise_SE3 * relative_pose);
       relative_pose_obs.push_back(obs);
     }
@@ -67,7 +67,7 @@ void get_simulation_data(std::vector<Sophus::SE3>& ground_truth, std::vector<Rel
   for (int n = 0; n < ground_truth.size(); n++){
     if(n >= 3){
       Sophus::SE3 relative_pose = ground_truth[n-3].inverse() * ground_truth[n];
-      Sophus::SE3 noise_SE3 = generate_SE3_noise(generator);
+      Sophus::SE3 noise_SE3 = generate_SE3_noise();
       RelativePoseObservation obs(n-3, n, noise_SE3 * relative_pose);
       relative_pose_obs.push_back(obs);
     }
@@ -75,7 +75,7 @@ void get_simulation_data(std::vector<Sophus::SE3>& ground_truth, std::vector<Rel
   for (int n = 0; n < ground_truth.size(); n++){
     if(n >= 5){
       Sophus::SE3 relative_pose = ground_truth[n-5].inverse() * ground_truth[n];
-      Sophus::SE3 noise_SE3 = generate_SE3_noise(generator);
+      Sophus::SE3 noise_SE3 = generate_SE3_noise();
       RelativePoseObservation obs(n-5, n, noise_SE3 * relative_pose);
       relative_pose_obs.push_back(obs);
     }
@@ -83,7 +83,7 @@ void get_simulation_data(std::vector<Sophus::SE3>& ground_truth, std::vector<Rel
   for (int n = 0; n < ground_truth.size(); n++){
     if(n >= 9){
       Sophus::SE3 relative_pose = ground_truth[n-9].inverse() * ground_truth[n];
-      Sophus::SE3 noise_SE3 = generate_SE3_noise(generator);
+      Sophus::SE3 noise_SE3 = generate_SE3_noise();
       RelativePoseObservation obs(n-9, n, noise_SE3 * relative_pose);
       relative_pose_obs.push_back(obs);
     }
@@ -148,7 +148,7 @@ int main(){
   MinimizerLevenbergMarquardt lm_minimizer(solver_chol_ptr, lm_config);
   lm_minimizer.minimize(30);
 
-  for(int i = 0; i < poses_gt.size(); i++){
+  for(int i = 0; i < poses_gt.size()-1; i++){
     std::cout<<"Number: "<<i<<"th pose in Pose Chain"<<std::endl;
     std::cout<<"=====Ground truth Pose====="<<std::endl;
     std::cout<<poses_gt[i].matrix()<<std::endl;
