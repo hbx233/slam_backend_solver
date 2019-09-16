@@ -58,7 +58,7 @@ public:
   /// @brief Set information matrix in the Edge
   void set_information(const MatXX &information) {
     information_ = information;
-    std::cout<<information_<<std::endl;
+    //std::cout<<information_<<std::endl;
   }
 
   /// @return Information matrix
