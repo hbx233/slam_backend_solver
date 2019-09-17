@@ -22,10 +22,17 @@ public:
   SparseCholeskySolver(std::shared_ptr<Problem> problem_ptr);
   /// @brief Default destructor
   ~SparseCholeskySolver() = default;
-  /// @brief
+  /// @brief Compute Vertices index with provided solve order
+  /// @note Different solve order will make problem with different solving efficiency
   void compute_vertices_index() override;
+  /// @brief Solve delta_x_ using sparse cholesky decomposition
   void solve_delta_x() override;
+  /// @brief Build the solve structure and the sparse structure of hessian matrix
   void build_solve_structure() override;
+  /*!
+   * @brief Set the order of vertices to solve more efficiently
+   * @param solve_order The vertices order in solving
+   */
   void set_solve_order(const std::vector<IDType>& solve_order);
 private:
   int block_dim_;

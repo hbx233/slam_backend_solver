@@ -97,10 +97,13 @@ void SparseCholeskySolver::build_solve_structure() {
 void SparseCholeskySolver::solve_delta_x() {
   //number of blocks (number of vertices)
   int num_v = problem_ptr_->vertex_id_map_vertex_ptr_.size();
-
+  //Sparse cholesky decomposition block matrices, Lower triangular
   std::vector<std::vector<Eigen::MatrixXd>> cholesky_L(num_v, std::vector<Eigen::MatrixXd>(num_v, Eigen::MatrixXd(0,0)));
+  //
   std::vector<Eigen::MatrixXd> cholesky_L_T_inv(num_v, Eigen::MatrixXd(0,0));
+
   //forward pass : sparse cholesky block decomposition
+  //hessian_ = L * L.transpose
   for(int c = 1; c < num_v; c++){
     if(hessian_block_[c][c].occupied == false){
       continue;

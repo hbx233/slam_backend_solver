@@ -13,7 +13,7 @@ public:
   /// @brief Default Destructor
   ~Point3DVertex() = default;
   /// @brief Trivial add
-  void plus(const VecX &delta) override{
+  void plus(const Eigen::VectorXd &delta) override{
     parameters_(0) += delta(0);
     parameters_(1) += delta(1);
     parameters_(2) += delta(2);

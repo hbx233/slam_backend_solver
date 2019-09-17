@@ -17,7 +17,7 @@ public:
   ~Pose3DVertex() = default;
   /// @brief Override the update function for 3D pose
   /// @note Use left multiplication of perturbation and separately update rotation and translation
-  void plus(const VecX &delta) override;
+  void plus(const Eigen::VectorXd &delta) override;
 private:
   /// True if want to use full se3
   /// False if want to optimize on rotation and translation separately

@@ -19,7 +19,12 @@ bool Problem::add_vertex(std::shared_ptr<Vertex> vertex) {
   }
 }
 bool Problem::remove_vertex(std::shared_ptr<Vertex> vertex) {
-
+  //remove vertex and all the edges that connected to it
+  vertex_id_map_vertex_ptr_.erase(vertex->id());
+  auto edges = vertex_id_map_edges_ptr_.equal_range(vertex->id());
+  for(auto it = edges.first; it!= edges.second; it++){
+    remove_edge(it->second);
+  }
 }
 
 bool Problem::add_edge(std::shared_ptr<Edge> edge) {
@@ -41,7 +46,19 @@ bool Problem::add_edge(std::shared_ptr<Edge> edge) {
 }
 
 bool Problem::remove_edge(std::shared_ptr<Edge> edge) {
-
+  if(edge_id_map_edge_ptr_.find(edge->id()) == edge_id_map_edge_ptr_.end()){
+    std::cerr<<"Edge want to delete not in Problem"<<std::endl;
+  } else{
+    for(int i = 0; i < edge->num_vertices(); i++){
+      auto v = edge->get_vertex_interface(i);
+      if(vertex_id_map_edges_ptr_.count(v->id()) == 1){
+        //this edge is the only edge that the vertex connected to
+        //delete the vertex
+        remove_vertex(v);
+      }
+    }
+    edge_id_map_edge_ptr_.erase(edge->id());
+  }
 }
 
 double Problem::compute_cost() {

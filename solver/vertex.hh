@@ -28,7 +28,7 @@ public:
    * @brief Pure virtual function of updating the parameter(over parametrization)
    * @param delta update value need to add to parameter
    */
-  virtual void plus(const VecX &delta) = 0;
+  virtual void plus(const Eigen::VectorXd &delta) = 0;
 
   /*!
    * @brief Set the Vertex to be fixed or changable

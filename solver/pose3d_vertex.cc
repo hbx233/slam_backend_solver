@@ -3,7 +3,7 @@ namespace SLAMSolver {
 Pose3DVertex::Pose3DVertex(const bool combined)
 : combined_(combined){}
 
-void Pose3DVertex::plus(const VecX &delta) {
+void Pose3DVertex::plus(const Eigen::VectorXd &delta) {
   if(combined_){
     Eigen::Matrix<double,6,1> delta_ = delta.template head<6>();
     Sophus::SE3 delta_SE3 = Sophus::SE3::exp(delta_);

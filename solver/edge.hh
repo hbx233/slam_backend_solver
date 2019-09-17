@@ -1,8 +1,6 @@
-#ifndef MYSLAM_BACKEND_EDGE_H
-#define MYSLAM_BACKEND_EDGE_H
+#pragma once
 
 #include <memory>
-#include <string>
 #include "solver/eigen_types.h"
 #include <iostream>
 namespace SLAMSolver{
@@ -56,7 +54,7 @@ public:
   double chi2();
 
   /// @brief Set information matrix in the Edge
-  void set_information(const MatXX &information) {
+  void set_information(const Eigen::MatrixXd &information) {
     information_ = information;
     //std::cout<<information_<<std::endl;
   }
@@ -78,5 +76,3 @@ protected:
 };
 
 }
-
-#endif
