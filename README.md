@@ -24,6 +24,9 @@ The key part of graph optimization problem is solving the normal equation at eac
 
 Graph optimization also needs a minimizer to control the optimization process and minimize the total cost. Typical nonlinear least square minimizers include Gauss-Newton, Levenberg-Marquardt and Dog-Leg Algorithm. In this work I only implemented Levenberg-Marquardt algorithm.
 
+## Dependency
+Eigen 3.3
+
 ## To Use
 
 ### 1. Create Graph Optimization Problem
