@@ -14,7 +14,7 @@ A graph optimization problem consists of **vertics** and **edges** that connect 
 
 The key part of graph optimization problem is solving the normal equation at each step to obtain the update vector, and we need to design an efficient solver to make it possible for large scale optimization problem. 
 
-**Currently I implemented three types of solvers: 
+**Currently I implemented three types of solvers:**
 
 1. Dense linear solver which purely solve the linear system by matrix inversion;
 2. Sparse Schur solver which use sparse schur complement
@@ -26,7 +26,7 @@ Graph optimization also needs a minimizer to control the optimization process an
 
 ## To Use
 
-###1. Create Graph Optimization Problem
+### 1. Create Graph Optimization Problem
 
 To create a graph optimization problem, you need to define the vertices in your graph and edges that connecting them. This framework doesn't support auto differentiation.
 
@@ -78,13 +78,15 @@ Parameters after fitting (30 iterations): `a = 1.05215; b = 1.93838; c = 1.0035`
 
 ### 2. Sparse Bundle Adjustment
 
+Simulated sparse bundle adjustment problem with 7 poses and 100 random 3D keypoints.
 
+![sba](./resources/sba.gif)
 
 ### 3. Pose Graph Optimization 
 
 Simulated Pose Graph consists of 100 poses with 386 constrains along a circle. 
 
-(Constraints (edges) are not shown in the video below)
+(Constraints are not shown in the video below)
 
 ![pgo](./resources/pgo.gif)
 
