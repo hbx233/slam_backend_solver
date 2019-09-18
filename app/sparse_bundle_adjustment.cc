@@ -23,11 +23,11 @@ struct Frame {
 
 void get_simulation_data(std::vector<Frame>& frames, std::unordered_map<int, Eigen::Vector3d>& points){
   int feature_nums = 100;
-  int frame_nums = 5;
+  int frame_nums = 7;
 
   double radius = 8;
 
-  for (int n = 0; n < frame_nums; ++n) {
+  for (int n = 0; n < frame_nums; n++) {
     double theta = n * 2 * M_PI / (frame_nums * 4);
 
     Sophus::SO3 R(0,0,theta);
@@ -37,7 +37,7 @@ void get_simulation_data(std::vector<Frame>& frames, std::unordered_map<int, Eig
 
   std::default_random_engine generator;
   std::normal_distribution<double> noise_pdf(0., 1. / 1000.);  // 2pixel / focal
-  for (int j = 0; j < feature_nums; ++j) {
+  for (int j = 0; j < feature_nums; j++) {
     //Generate one feature point
     std::uniform_real_distribution<double> xy_rand(-4, 4.0);
     std::uniform_real_distribution<double> z_rand(4., 8.);
